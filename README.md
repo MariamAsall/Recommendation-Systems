@@ -1,127 +1,132 @@
-# Recommendation-Systems
+## Lifestyle Recommendations (Diet Plan) System
 
 ## Overview
 
-This project demonstrates the implementation of a basic recommendation system using Python and Jupyter Notebook. The system is designed to provide personalized recommendations based on user preferences and item features, with a focus on nutritional data. The repository includes a sample dataset (`nutrients_csvfile.csv`) and a Jupyter Notebook (`Recommendation_Systems.ipynb`) that walks through the development and evaluation of the recommendation model.
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Dataset](#dataset)
-- [Environment Setup](#environment-setup)
-- [Usage](#usage)
-- [Implementation Details](#implementation-details)
-- [Results](#results)
-- [Troubleshooting](#troubleshooting)
----
-
-## Features
-
-- Reads and processes a nutritional dataset.
-- Explores data and visualizes key statistics.
-- Implements a simple recommendation algorithm (content-based or collaborative filtering, depending on the notebook).
-- Provides recommendations based on user input or preferences.
-- Evaluates model performance with relevant metrics.
+This project builds a **Lifestyle Recommendation System** that suggests food items or diet plans based on nutritional content. It uses a real-world food composition dataset and applies data cleaning, outlier handling, and exploratory analysis to prepare the data for future recommendation tasks.
 
 ---
 
 ## Dataset
 
-- **File:** `nutrients_csvfile.csv`
-- **Description:** Contains nutritional information about various food items.
-- **Sample columns:**  
-  - `Food_Name`  
-  - `Calories`  
-  - `Protein`  
-  - `Fat`  
-  - `Carbohydrates`  
-  - (Additional nutrient columns as available)
+**Source:**  
+- The dataset is a CSV file named `nutrients_csvfile.csv`.
 
-**Sample:**
-```csv
-Food_Name,Calories,Protein,Fat,Carbohydrates
-Apple,52,0.3,0.2,14
-Banana,96,1.3,0.3,27
-...
-```
+**Columns:**
+- `Food`: Name of the food item
+- `Measure`: Serving size/unit
+- `Grams`: Weight in grams
+- `Calories`: Calories per serving
+- `Protein`: Protein (g)
+- `Fat`: Total fat (g)
+- `Sat.Fat`: Saturated fat (g)
+- `Fiber`: Dietary fiber (g)
+- `Carbs`: Carbohydrates (g)
+- `Category`: Food group/category (e.g., Dairy products, Vegetables)
 
 ---
 
-## Environment Setup
+## Steps and Explanations
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/MariamAsall/Recommendation-Systems.git
-   cd Recommendation-Systems
-   ```
+### 1. **Import Libraries**
 
-2. **Install dependencies:**  
-   *(Recommended: use a virtual environment)*
-   ```bash
-   pip install pandas numpy scikit-learn matplotlib seaborn
-   ```
+The following Python libraries are used:
+- `numpy`, `pandas`: Data manipulation
+- `sklearn`: Imputation, metrics
+- `matplotlib`, `seaborn`: Visualization
 
-3. **Launch Jupyter Notebook:**
-   ```bash
-   jupyter notebook
-   ```
-   Open `Recommendation_Systems.ipynb` in your browser.
+### 2. **Load and Inspect Data**
+
+- The dataset is loaded using `pd.read_csv()`.
+- `data.head()` and `data.info()` are used to preview data and check types and missing values.
+
+### 3. **Convert Data Types**
+
+- Nutritional columns (`Calories`, `Protein`, `Fat`, `Sat.Fat`, `Fiber`, `Carbs`) are converted to numeric types using `pd.to_numeric(errors='coerce')` to handle non-numeric values (e.g., 't').
+
+### 4. **Handle Missing Values**
+
+- Missing values in numeric columns are imputed using the **mean** with `SimpleImputer(strategy='mean')`.
+- After imputation, `data.isnull().sum()` should show zero missing values.
+
+### 5. **Remove Duplicates**
+
+- The code checks for duplicated rows with `data.duplicated().sum()` and removes them if any.
+
+### 6. **Exploratory Data Analysis**
+
+- `data.describe()` provides summary statistics for each numeric column.
+- Boxplots are generated for each nutrient to visualize distributions and spot outliers.
+
+### 7. **Outlier Detection and Handling**
+
+- The **IQR (Interquartile Range) method** is used to detect outliers in each numeric column.
+- Outliers can be:
+  - **Capped** (replaced with the nearest bound) or
+  - **Removed** (rows dropped).
+- The code demonstrates capping by default.
+
+### 8. **Special Data Cleaning**
+
+- Negative values in the `Protein` column are replaced with the median protein value.
+- String values like 't' are replaced with 0.
+
+### 9. **Save Cleaned Data**
+
+- The cleaned and preprocessed dataset is saved as `cleaned_dataset.csv` for downstream use.
+
+### 10. **Visualization**
+
+- Boxplots for each nutrient after cleaning are generated to confirm outlier handling was effective.
 
 ---
 
 ## Usage
 
-1. **Open the Jupyter Notebook:**  
-   `Recommendation_Systems.ipynb`
+1. **Prepare the Dataset:**  
+   Place `nutrients_csvfile.csv` in your working directory.
 
-2. **Run the notebook cells in order:**  
-   - The notebook will guide you through data loading, exploration, preprocessing, model building, and evaluation.
-   - You can modify the input or parameters to experiment with different recommendation strategies.
+2. **Run the Notebook:**  
+   Execute all cells in order to clean and preprocess the data.
 
-3. **Get Recommendations:**  
-   - Input your preferences (e.g., desired calorie range, high protein foods) as prompted in the notebook.
-   - The system will output a list of recommended food items matching your criteria.
-
----
-
-## Implementation Details
-
-- **Data Loading & Exploration:**  
-  The notebook loads the CSV file, checks for missing values, and provides summary statistics and visualizations.
-
-- **Preprocessing:**  
-  Handles missing data, normalizes or scales features as needed, and prepares the data for modeling.
-
-- **Recommendation Algorithm:**  
-  - *Content-Based Filtering:* Recommends items similar to a user's stated preferences based on nutrient features.
-  - *(If collaborative filtering is implemented:)* Uses user-item interaction data to suggest items based on similar users' preferences.
-
-- **Evaluation:**  
-  The notebook may include evaluation metrics such as accuracy, precision, recall, or RMSE/MAE if ratings data is present.
+3. **Output:**  
+   - Cleaned data is saved as `cleaned_dataset.csv`.
+   - Visualizations help you understand the data distribution post-cleaning.
 
 ---
 
-## Results
+## Notes
 
-- The notebook displays recommended items based on sample user queries.
-- Visualizations and summary tables show the effectiveness of the recommendation approach.
-- *(If implemented:)* Evaluation metrics such as RMSE or MAE are reported for model performance.
+- The current code focuses on **data cleaning and preprocessing**.  
+- The actual recommendation logic (e.g., content-based or collaborative filtering) is not included in the provided code, but the cleaned data is ready for such modeling.
+- The system is robust to missing values, outliers, and data type inconsistencies.
+
+---
+
+## Example: Outlier Handling Function
+
+```python
+def detect_outliers_iqr(data, column):
+    Q1 = data[column].quantile(0.25)
+    Q3 = data[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    outliers = data[(data[column]  upper_bound)]
+    return outliers, lower_bound, upper_bound
+
+def handle_outliers(data, column, method='cap'):
+    _, lower_bound, upper_bound = detect_outliers_iqr(data, column)
+    if method == 'remove':
+        data = data[(data[column] >= lower_bound) & (data[column]  upper_bound, upper_bound, data[column])
+    return data
+```
 
 ---
 
 ## Troubleshooting
 
-- **FileNotFoundError:**  
-  Ensure `nutrients_csvfile.csv` is present in the repository directory.
+- **FileNotFoundError:** Ensure `nutrients_csvfile.csv` is in the correct directory.
+- **ImportError:** Install missing libraries with `pip install pandas numpy scikit-learn matplotlib seaborn`.
+- **Data Type Issues:** Non-numeric entries are handled by `errors='coerce'` and replaced with the mean.
 
-- **Library Import Errors:**  
-  Make sure all required Python packages are installed.
-
-- **Data Format Issues:**  
-  Check that the CSV file matches the expected format (column names, data types).
-
-- **Jupyter Notebook Issues:**  
-  Restart the kernel and rerun all cells if you encounter execution errors.
-
+---
